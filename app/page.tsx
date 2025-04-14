@@ -1,8 +1,9 @@
+import CoinCounter from "@/components/CoinCounter.jsx"
 
 export default function Home() {
   return (
     <div>
-      <h1>hello</h1>
+      <CoinCounter/>
     </div>
   );
 }
