@@ -1,70 +1,66 @@
 "use client";
-
 import { useState } from "react";
-import Headicon from "@/assets/headsicon.png";
-import Tailsicon from "@/assets/tailsicon.png";
-import Image from "next/image";
 
-const CoinCounter = () => {
-  const [heads, setHeads] = useState(0);
-  const [tails, setTails] = useState(0);
-  const [editValue, setEditValue] = useState({ heads: 0, tails: 0 });
+const WinLossCounter = () => {
+  const [wins, setWins] = useState(0);
+  const [losses, setLosses] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState({ wins: 0, losses: 0 });
 
   const handleEdit = () => {
+    setEditValue({ wins, losses });
     setIsEditing(true);
-    setEditValue({ heads, tails });
   };
 
   const handleSaveEdit = () => {
-    if (editValue.heads >= 0 && editValue.tails >= 0) {
-      setHeads(Number(editValue.heads));
-      setTails(Number(editValue.tails));
+    if (editValue.wins >= 0 && editValue.losses >= 0) {
+      setWins(Number(editValue.wins));
+      setLosses(Number(editValue.losses));
       setIsEditing(false);
     }
   };
 
-  const handleReset = () => {
-    setHeads(0);
-    setTails(0);
-  };
-
   const handleInputChange = (e, type) => {
     const value = e.target.value;
-    setEditValue((prev) => ({
-      ...prev,
-      [type]: value,
-    }));
+    if (/^\d*$/.test(value)) {
+      setEditValue((prev) => ({
+        ...prev,
+        [type]: value,
+      }));
+    }
+  };
+
+  const handleReset = () => {
+    setWins(0);
+    setLosses(0);
   };
 
   return (
     <div className="min-h-full bg-zinc-800 text-white p-6 space-y-6 flex flex-col items-center justify-between">
       <div className="flex gap-8 w-full justify-center">
-        {/* Heads Section */}
+        {/* Wins Section */}
         <div
           onClick={() => {
-            if (!isEditing) setHeads(heads + 1);
+            if (!isEditing) setWins(wins + 1);
           }}
           className="bg-green-700 hover:bg-green-600 transition-colors rounded-lg px-6 py-4 cursor-pointer text-center w-full flex items-center justify-between"
         >
-          <Image src={Headicon} alt="Heads" width={60} height={60} />
-          <div className="text-right">
-            <p className="text-lg text-green-200 font-semibold">Heads</p>
-            <p className="text-3xl font-bold">{heads}</p>
+          <div className="text-left">
+            <p className="text-lg text-green-200 font-semibold">Wins</p>
+            <p className="text-3xl font-bold">{wins}</p>
           </div>
         </div>
 
-        {/* Tails Section */}
+        {/* Losses Section */}
         <div
           onClick={() => {
-            if (!isEditing) setTails(tails + 1);
+            if (!isEditing) setLosses(losses + 1);
           }}
           className="bg-red-700 hover:bg-red-600 transition-colors rounded-lg px-6 py-4 cursor-pointer text-center w-full flex items-center justify-between"
         >
-          <Image src={Tailsicon} alt="Tails" width={60} height={60} />
-          <div className="text-right">
-            <p className="text-lg text-red-200 font-semibold">Tails</p>
-            <p className="text-3xl font-bold">{tails}</p>
+          <div className="text-left">
+            <p className="text-lg text-red-200 font-semibold">Losses</p>
+            <p className="text-3xl font-bold">{losses}</p>
           </div>
         </div>
       </div>
@@ -73,14 +69,14 @@ const CoinCounter = () => {
         <div className="flex gap-4 justify-center mt-4">
           <input
             type="number"
-            value={editValue.heads}
-            onChange={(e) => handleInputChange(e, "heads")}
+            value={editValue.wins}
+            onChange={(e) => handleInputChange(e, "wins")}
             className="text-lg p-2 rounded-md bg-zinc-700 text-white"
           />
           <input
             type="number"
-            value={editValue.tails}
-            onChange={(e) => handleInputChange(e, "tails")}
+            value={editValue.losses}
+            onChange={(e) => handleInputChange(e, "losses")}
             className="text-lg p-2 rounded-md bg-zinc-700 text-white"
           />
           <button
@@ -110,4 +106,4 @@ const CoinCounter = () => {
   );
 };
 
-export default CoinCounter;
+export default WinLossCounter;
