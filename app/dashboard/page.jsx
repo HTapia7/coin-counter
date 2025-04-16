@@ -1,33 +1,32 @@
-import CoinTossPieChart from "@/components/CoinTossPieChart"; // Adjust path if needed
+import CoinTossPieChart from "@/components/CoinTossPieChart";
+import WinLossChart from "@/components/WinLossPieChart";
 import TableData from "@/components/TableData.jsx";
 
 export default function DashboardPage() {
   return (
-    <div className="p-4 space-y-6">
-      {/* Graph Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Graph 1: Coin Toss Pie Chart */}
-        <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow">
-          <CoinTossPieChart heads={10} tails={5} />
+    <div className="p-6 md:p-8 space-y-10">
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Coin Toss Chart */}
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow p-6 flex flex-col items-center justify-center h-[340px]">
+         
+          <CoinTossPieChart />
         </div>
 
-        {/* Graph 2 Placeholder */}
-        <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow">
-          <div className="h-48 flex items-center justify-center text-muted-foreground">
-            Graph 2
-          </div>
+        {/* Win/Loss Chart */}
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow p-6 flex flex-col items-center justify-center h-[340px]">
+         
+          <WinLossChart />
         </div>
 
-        {/* Graph 3 Placeholder */}
-        <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow">
-          <div className="h-48 flex items-center justify-center text-muted-foreground">
-            Graph 3
-          </div>
+        {/* Placeholder for Chart 3 */}
+        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow p-6 flex items-center justify-center h-[340px] text-gray-500 dark:text-gray-400 text-center">
+          Graph 3
         </div>
       </div>
 
-      {/* Table Section (optional) */}
-      <div className="mt-6">
+      {/* Table Section */}
+      <div className="mt-8">
         <TableData />
       </div>
     </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export default function Dashboard() {
+export default function () {
   const [sessions, setSessions] = useState([]);
 
   useEffect(() => {

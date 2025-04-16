@@ -3,14 +3,13 @@
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { useEffect, useState } from "react";
 
-const COLORS = ["#60a5fa", "#f87171"]; // Heads = Blue, Tails = Red
+const COLORS = ["#60a5fa", "#f87171"]; // Wins = Blue, Losses = Red
 
-export default function CoinTossPieChart() {
+export default function WinLossPieChart() {
   const [sessions, setSessions] = useState([]);
-  const [totalHeads, setTotalHeads] = useState(0);
-  const [totalTails, setTotalTails] = useState(0);
+  const [totalWins, setTotalWins] = useState(0);
+  const [totalLosses, setTotalLosses] = useState(0);
 
-  // Fetch sessions on mount
   useEffect(() => {
     const fetchSessions = async () => {
       const res = await fetch("/api/dashboard-data");
@@ -20,45 +19,42 @@ export default function CoinTossPieChart() {
     fetchSessions();
   }, []);
 
-  // Calculate totals
   useEffect(() => {
     const totals = sessions.reduce(
       (acc, session) => {
-        acc.heads += session.heads || 0;
-        acc.tails += session.tails || 0;
+        acc.wins += session.wins || 0;
+        acc.losses += session.losses || 0;
         return acc;
       },
-      { heads: 0, tails: 0 }
+      { wins: 0, losses: 0 }
     );
-    setTotalHeads(totals.heads);
-    setTotalTails(totals.tails);
+    setTotalWins(totals.wins);
+    setTotalLosses(totals.losses);
   }, [sessions]);
 
   const data = [
-    { name: "Heads", value: totalHeads },
-    { name: "Tails", value: totalTails },
+    { name: "Wins", value: totalWins },
+    { name: "Losses", value: totalLosses },
   ];
 
   return (
-    <div className="h-[350px] w-full">
-      <ResponsiveContainer>
+    <div className="w-full h-full">
+      <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={data}
             cx="50%"
             cy="50%"
-            outerRadius={110}
+            outerRadius={90}
             dataKey="value"
-            label={({ name, percent }) =>
-              `${name}: ${(percent * 100).toFixed(0)}%`
-            }
+            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
           >
             {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
           <Tooltip />
-          <Legend />
+          <Legend verticalAlign="bottom" height={36} />
         </PieChart>
       </ResponsiveContainer>
     </div>
