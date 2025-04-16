@@ -21,6 +21,12 @@ const Navbar = () => {
             Home
           </Link>
           <Link
+            href="/dashboard"
+            className="hover:text-gray-300 transition-colors text-lg"
+          >
+            Dashboard
+          </Link>
+          <Link
             href="/login"
             className="hover:text-gray-300 transition-colors text-lg"
           >

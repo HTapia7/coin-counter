@@ -1,113 +1,78 @@
 "use client";
 
-import { useState } from "react";
-import Headicon from "@/assets/headsicon.png";
-import Tailsicon from "@/assets/tailsicon.png";
 import Image from "next/image";
+import HeadsIcon from "@/assets/headsicon.png";
+import TailsIcon from "@/assets/tailsicon.png";
 
-const CoinCounter = () => {
-  const [heads, setHeads] = useState(0);
-  const [tails, setTails] = useState(0);
-  const [editValue, setEditValue] = useState({ heads: 0, tails: 0 });
-  const [isEditing, setIsEditing] = useState(false);
-
-  const handleEdit = () => {
-    setIsEditing(true);
-    setEditValue({ heads, tails });
-  };
-
-  const handleSaveEdit = () => {
-    if (editValue.heads >= 0 && editValue.tails >= 0) {
-      setHeads(Number(editValue.heads));
-      setTails(Number(editValue.tails));
-      setIsEditing(false);
-    }
-  };
-
-  const handleReset = () => {
-    setHeads(0);
-    setTails(0);
-  };
-
-  const handleInputChange = (e, type) => {
-    const value = e.target.value;
-    setEditValue((prev) => ({
-      ...prev,
-      [type]: value,
-    }));
-  };
+export default function CoinCounter({ heads, setHeads, tails, setTails }) {
+  const handleHeads = () => setHeads(heads + 1);
+  const handleTails = () => setTails(tails + 1);
+  const removeHead = () => setHeads(prev => (prev > 0 ? prev - 1 : 0));
+  const removeTails = () => setTails(prev => (prev > 0 ? prev - 1 : 0));
 
   return (
-    <div className="min-h-full bg-zinc-800 text-white p-6 space-y-6 flex flex-col items-center justify-between">
-      <div className="flex gap-8 w-full justify-center">
-        {/* Heads Section */}
-        <div
-          onClick={() => {
-            if (!isEditing) setHeads(heads + 1);
-          }}
-          className="bg-green-700 hover:bg-green-600 transition-colors rounded-lg px-6 py-4 cursor-pointer text-center w-full flex items-center justify-between"
-        >
-          <Image src={Headicon} alt="Heads" width={60} height={60} />
-          <div className="text-right">
-            <p className="text-lg text-green-200 font-semibold">Heads</p>
-            <p className="text-3xl font-bold">{heads}</p>
-          </div>
-        </div>
+    <div className="text-center">
+      <h2 className="text-2xl font-bold mb-6">Coin Counter</h2>
 
-        {/* Tails Section */}
-        <div
-          onClick={() => {
-            if (!isEditing) setTails(tails + 1);
-          }}
-          className="bg-red-700 hover:bg-red-600 transition-colors rounded-lg px-6 py-4 cursor-pointer text-center w-full flex items-center justify-between"
-        >
-          <Image src={Tailsicon} alt="Tails" width={60} height={60} />
-          <div className="text-right">
-            <p className="text-lg text-red-200 font-semibold">Tails</p>
-            <p className="text-3xl font-bold">{tails}</p>
-          </div>
-        </div>
-      </div>
-
-      {isEditing && (
-        <div className="flex gap-4 justify-center mt-4">
-          <input
-            type="number"
-            value={editValue.heads}
-            onChange={(e) => handleInputChange(e, "heads")}
-            className="text-lg p-2 rounded-md bg-zinc-700 text-white"
-          />
-          <input
-            type="number"
-            value={editValue.tails}
-            onChange={(e) => handleInputChange(e, "tails")}
-            className="text-lg p-2 rounded-md bg-zinc-700 text-white"
-          />
-          <button
-            onClick={handleSaveEdit}
-            className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-400"
-          >
-            Save
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Heads Card */}
+        <div className="bg-green-100/10 border border-green-500 rounded-2xl p-6 w-full md:w-1/2 shadow-md hover:shadow-lg transition text-center">
+          <button onClick={handleHeads} className="w-full focus:outline-none">
+            <Image
+              src={HeadsIcon}
+              alt="Heads"
+              width={120}
+              height={120}
+              className="mx-auto mb-4 hover:scale-105 transition-transform duration-200"
+            />
           </button>
+          <p className="text-lg font-semibold text-green-300">Heads</p>
+          <p className="text-3xl font-bold mb-4">{heads}</p>
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={handleHeads}
+              className="bg-green-600 hover:bg-green-500 text-white font-medium px-5 py-2 rounded-lg shadow-sm transition"
+            >
+              + 
+            </button>
+            <button
+              onClick={removeHead}
+              className="bg-green-600 hover:bg-green-500 text-white font-medium px-5 py-2 rounded-lg shadow-sm transition opacity-90"
+            >
+              −
+            </button>
+          </div>
         </div>
-      )}
 
-      <div className="flex gap-4 justify-center mt-6">
-        <button
-          onClick={handleEdit}
-          className="bg-yellow-500 hover:bg-yellow-400 px-6 py-2 rounded-md"
-        >
-          Edit
-        </button>
-        <button
-          onClick={handleReset}
-          className="bg-red-500 hover:bg-red-400 px-6 py-2 rounded-md"
-        >
-          Reset
-        </button>
+        {/* Tails Card */}
+        <div className="bg-red-100/10 border border-red-500 rounded-2xl p-6 w-full md:w-1/2 shadow-md hover:shadow-lg transition text-center">
+          <button onClick={handleTails} className="w-full focus:outline-none">
+            <Image
+              src={TailsIcon}
+              alt="Tails"
+              width={120}
+              height={120}
+              className="mx-auto mb-4 hover:scale-105 transition-transform duration-200"
+            />
+          </button>
+          <p className="text-lg font-semibold text-red-300">Tails</p>
+          <p className="text-3xl font-bold mb-4">{tails}</p>
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={handleTails}
+              className="bg-red-600 hover:bg-red-500 text-white font-medium px-5 py-2 rounded-lg shadow-sm transition"
+            >
+              + 
+            </button>
+            <button
+              onClick={removeTails}
+              className="bg-red-600 hover:bg-red-500 text-white font-medium px-5 py-2 rounded-lg shadow-sm transition opacity-90"
+            >
+              −
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
-};
-
-export default CoinCounter;
+}
