@@ -28,10 +28,15 @@ export async function POST(req) {
     data = await req.json();
   } catch (err) {
     return new Response(
-      JSON.stringify({ success: false, error: "Invalid JSON format" }),
+      JSON.stringify({
+        success: false,
+        error: "Invalid JSON format",
+        message: err.message, // Shows the error message
+      }),
       { status: 400, headers: { "Content-Type": "application/json" } }
     );
   }
+  
 
   const { heads, tails, wins, losses } = data;
 
