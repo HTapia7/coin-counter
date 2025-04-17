@@ -1,19 +1,5 @@
-import { MongoClient, ServerApiVersion } from "mongodb";
 import { getAuth } from "@clerk/nextjs/server";
-
-const uri = process.env.MONGO_URI;
-
-if (!uri) {
-  throw new Error("Missing MONGO_URI in environment variables.");
-}
-
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
+import { connectToDB } from "@/lib/connection.js"; // Adjust path as needed
 
 export async function POST(req) {
   console.log("📥 Incoming POST request to /api/sessions");
@@ -65,9 +51,8 @@ export async function POST(req) {
   }
 
   try {
-    console.log("🔌 Connecting to MongoDB...");
-    await client.connect();
-    const db = client.db("coinTracker");
+    // Reuse connection to MongoDB
+    const { db } = await connectToDB();
     const sessions = db.collection("sessions");
 
     const sessionData = {
@@ -104,8 +89,5 @@ export async function POST(req) {
       JSON.stringify({ success: false, error: err.message }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
-  } finally {
-    console.log("🔒 Closing MongoDB connection");
-    await client.close();
   }
 }
