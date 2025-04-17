@@ -1,7 +1,12 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
-import { getAuth } from "@clerk/nextjs/server";  // Import Clerk's getAuth function to get the userId
+import { getAuth } from "@clerk/nextjs/server";
 
 const uri = process.env.MONGO_URI;
+
+if (!uri) {
+  throw new Error("Missing MONGO_URI in environment variables.");
+}
+
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -11,45 +16,53 @@ const client = new MongoClient(uri, {
 });
 
 export async function GET(req) {
-  try {
-    // Get the user session data from Clerk
-    const { userId } = getAuth(req);
+  console.log("📥 Incoming GET request to /api/sessions");
 
-    // If no userId is found (not logged in), reject the request
+  try {
+    const { userId } = await getAuth(req);
+    console.log("👤 Clerk userId:", userId);
+
     if (!userId) {
+      console.log("❌ No userId found. User not authenticated.");
       return new Response(
         JSON.stringify({ success: false, error: "User not authenticated" }),
-        { status: 401 }
+        { status: 401, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    await client.connect(); // Ensure connection
+    console.log("🔌 Connecting to MongoDB...");
+    await client.connect();
     const db = client.db("coinTracker");
     const sessions = db.collection("sessions");
 
-    // Fetch and sort sessions by createdAt in descending order, filtering by userId
+    console.log(`📦 Fetching sessions for userId: ${userId}`);
     const sessionData = await sessions
-      .find({ userId }) // Filter by userId to get sessions for the logged-in user
-      .sort({ createdAt: -1 }) // -1 sorts in descending order
+      .find({ userId })
+      .sort({ createdAt: -1 })
       .toArray();
 
-    // Add the day of the week to each session
-    const sessionDataWithDay = sessionData.map(session => {
-      const dayOfWeek = new Date(session.createdAt).toLocaleString('en-US', { weekday: 'long' });
+    console.log(`✅ Retrieved ${sessionData.length} sessions`);
+
+    const sessionDataWithDay = sessionData.map((session) => {
+      const date = new Date(session.createdAt);
+      const dayOfWeek = isNaN(date) ? "Unknown" : date.toLocaleString("en-US", { weekday: "long" });
       return { ...session, dayOfWeek };
     });
+
+    console.log("📅 Added day of the week to sessions");
 
     return new Response(JSON.stringify(sessionDataWithDay), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
-    console.error("Error fetching data:", err);
-    return new Response(JSON.stringify({ success: false, error: err.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    console.error("🔥 Error fetching data:", err);
+    return new Response(
+      JSON.stringify({ success: false, error: err.message }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   } finally {
-    await client.close(); // Close connection
+    console.log("🔒 Closing MongoDB connection");
+    await client.close();
   }
 }
