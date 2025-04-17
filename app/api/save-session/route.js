@@ -1,10 +1,19 @@
 import { getAuth } from "@clerk/nextjs/server";
-import { connectToDB } from "@/lib/connection.js"; // Adjust path as needed
+import mongoose from "mongoose";
+import SessionData from "@/models/schema.js"; // adjust path if needed
+
+let isConnected = false;
+
+const connectToDatabase = async () => {
+  if (isConnected) return;
+  if (!process.env.MONGO_URI) throw new Error("Missing MONGO_URI in environment variables.");
+  await mongoose.connect(process.env.MONGO_URI);
+  isConnected = true;
+};
 
 export async function POST(req) {
   console.log("📥 Incoming POST request to /api/sessions");
 
-  // Get the user session data from Clerk
   const { userId } = await getAuth(req);
   console.log("👤 Clerk userId:", userId);
 
@@ -51,38 +60,25 @@ export async function POST(req) {
   }
 
   try {
-    // Reuse connection to MongoDB
-    const { db } = await connectToDB();
-    const sessions = db.collection("sessions");
+    await connectToDatabase();
 
-    const sessionData = {
+    const session = new SessionData({
       userId,
       heads,
       tails,
       wins,
       losses,
-      createdAt: new Date(),
-    };
+    });
 
-    console.log("📝 Inserting session:", sessionData);
-    const result = await sessions.insertOne(sessionData);
+    console.log("📝 Saving session to database...");
+    const savedSession = await session.save();
 
-    if (result.acknowledged) {
-      console.log("✅ Session inserted with ID:", result.insertedId);
-      return new Response(
-        JSON.stringify({ success: true, sessionId: result.insertedId }),
-        { status: 200, headers: { "Content-Type": "application/json" } }
-      );
-    } else {
-      console.error("❌ Insert operation was not acknowledged");
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: "Failed to insert session into the database",
-        }),
-        { status: 500, headers: { "Content-Type": "application/json" } }
-      );
-    }
+    console.log("✅ Session inserted with ID:", savedSession._id);
+
+    return new Response(
+      JSON.stringify({ success: true, sessionId: savedSession._id }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
   } catch (err) {
     console.error("🔥 Error saving session:", err);
     return new Response(

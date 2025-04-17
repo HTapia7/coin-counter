@@ -1,19 +1,15 @@
-import { MongoClient, ServerApiVersion } from "mongodb";
+import mongoose from "mongoose";
 import { getAuth } from "@clerk/nextjs/server";
+import SessionData from "@/models/schema.js"; // adjust path if needed
 
-const uri = process.env.MONGO_URI;
+let isConnected = false;
 
-if (!uri) {
-  throw new Error("Missing MONGO_URI in environment variables.");
-}
-
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
+const connectToDatabase = async () => {
+  if (isConnected) return;
+  if (!process.env.MONGO_URI) throw new Error("Missing MONGO_URI in environment variables.");
+  await mongoose.connect(process.env.MONGO_URI);
+  isConnected = true;
+};
 
 export async function GET(req) {
   console.log("📥 Incoming GET request to /api/sessions");
@@ -31,22 +27,17 @@ export async function GET(req) {
     }
 
     console.log("🔌 Connecting to MongoDB...");
-    await client.connect();
-    const db = client.db("coinTracker");
-    const sessions = db.collection("sessions");
+    await connectToDatabase();
 
     console.log(`📦 Fetching sessions for userId: ${userId}`);
-    const sessionData = await sessions
-      .find({ userId })
-      .sort({ createdAt: -1 })
-      .toArray();
+    const sessionData = await SessionData.find({ userId }).sort({ createdAt: -1 });
 
     console.log(`✅ Retrieved ${sessionData.length} sessions`);
 
     const sessionDataWithDay = sessionData.map((session) => {
       const date = new Date(session.createdAt);
       const dayOfWeek = isNaN(date) ? "Unknown" : date.toLocaleString("en-US", { weekday: "long" });
-      return { ...session, dayOfWeek };
+      return { ...session.toObject(), dayOfWeek };
     });
 
     console.log("📅 Added day of the week to sessions");
@@ -61,8 +52,5 @@ export async function GET(req) {
       JSON.stringify({ success: false, error: err.message }),
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
-  } finally {
-    console.log("🔒 Closing MongoDB connection");
-    await client.close();
   }
 }
