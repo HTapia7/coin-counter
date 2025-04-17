@@ -2,7 +2,7 @@
 import mongoose from "mongoose";
 
 const SessionDataSchema = new mongoose.Schema({
-  userId: { type: String, required: true }, // 🔥 Add this line
+  userId: { type: String, required: true },
   heads: { type: Number, required: true },
   tails: { type: Number, required: true },
   wins: { type: Number, required: true },
