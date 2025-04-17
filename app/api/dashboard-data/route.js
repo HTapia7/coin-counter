@@ -1,4 +1,5 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
+import { getAuth } from "@clerk/nextjs/server";  // Import Clerk's getAuth function to get the userId
 
 const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri, {
@@ -9,15 +10,26 @@ const client = new MongoClient(uri, {
   },
 });
 
-export async function GET() {
+export async function GET(req) {
   try {
-    await client.connect(); // ensure connection
+    // Get the user session data from Clerk
+    const { userId } = getAuth(req);
+
+    // If no userId is found (not logged in), reject the request
+    if (!userId) {
+      return new Response(
+        JSON.stringify({ success: false, error: "User not authenticated" }),
+        { status: 401 }
+      );
+    }
+
+    await client.connect(); // Ensure connection
     const db = client.db("coinTracker");
     const sessions = db.collection("sessions");
 
-    // Fetch and sort sessions by createdAt in descending order
+    // Fetch and sort sessions by createdAt in descending order, filtering by userId
     const sessionData = await sessions
-      .find()
+      .find({ userId }) // Filter by userId to get sessions for the logged-in user
       .sort({ createdAt: -1 }) // -1 sorts in descending order
       .toArray();
 
@@ -38,6 +50,6 @@ export async function GET() {
       headers: { "Content-Type": "application/json" },
     });
   } finally {
-    await client.close(); // close connection
+    await client.close(); // Close connection
   }
 }

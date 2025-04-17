@@ -1,4 +1,5 @@
 import { MongoClient, ServerApiVersion, ObjectId } from "mongodb";
+import { getAuth } from "@clerk/nextjs/server"; // Import Clerk's getAuth function to get the userId
 
 const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri, {
@@ -10,6 +11,17 @@ const client = new MongoClient(uri, {
 });
 
 export async function DELETE(req, { params }) {
+  // Get the user session data from Clerk
+  const { userId } = getAuth(req);
+
+  // If no userId is found (user not authenticated), reject the request
+  if (!userId) {
+    return new Response(
+      JSON.stringify({ success: false, error: "User not authenticated" }),
+      { status: 401, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   // Ensure params is awaited
   const { id } = await params;  // Await the params before using it
 
@@ -34,6 +46,16 @@ export async function DELETE(req, { params }) {
     }
 
     const objectId = new ObjectId(id);
+
+    // Check if the session belongs to the logged-in user
+    const session = await sessions.findOne({ _id: objectId, userId });
+
+    if (!session) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Session not found or unauthorized" }),
+        { status: 404, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
     // Delete the document with the specific ID
     const result = await sessions.deleteOne({ _id: objectId });

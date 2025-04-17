@@ -1,99 +1,30 @@
-"use client";
+// app/page.tsx
 
-import { useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import CoinCounter from "@/components/CoinCounter.jsx";
-import WinLossCounter from "@/components/WinLossCounter.jsx";
-import 'react-toastify/dist/ReactToastify.css'; 
+import { ArrowRight } from "lucide-react";
 
-
-export default function Home() {
-  const [heads, setHeads] = useState(0);
-  const [tails, setTails] = useState(0);
-  const [wins, setWins] = useState(0);
-  const [losses, setLosses] = useState(0);
-
-  const handleSave = async () => {
-    try {
-      const res = await fetch("/api/save-session", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ heads, tails, wins, losses }),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        console.log("Saved successfully:", data.insertedId);
-
-        // Reset counters to 0 after successful save
-        setHeads(0);
-        setTails(0);
-        setWins(0);
-        setLosses(0);
-
-        // Show success toast
-        toast.success("Successful! Check Dashboard!!");
-      } else {
-        console.error("Save failed:", data.error);
-        // Show error toast
-        toast.error("Failed to save session.");
-      }
-    } catch (err) {
-      console.error("Error saving:", err);
-      // Show error toast
-      toast.error("Error saving session.");
-    }
-  };
-
+export default function HomePage() {
   return (
-    <div className="min-h-screen text-white p-6">
-      {/* Save Button Section */}
-      <div className="flex justify-end mb-6">
-        <button
-          onClick={handleSave}
-          className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-8">
+      <div className="max-w-2xl text-center space-y-8">
+        {/* App Name */}
+        <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300">
+          CoinFlip Tracker
+        </h1>
+
+        {/* Tagline */}
+        <p className="text-lg md:text-xl text-gray-700 dark:text-gray-300">
+          Visualize your coin tosses and track wins and losses with clarity. Simple. Fast. Effective.
+        </p>
+
+        {/* Action Button */}
+        <a
+          href="/counter"
+          className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 text-white text-lg rounded-xl shadow-lg hover:bg-blue-700 transition transform hover:scale-105"
         >
-          Save
-        </button>
+          Get Started
+          <ArrowRight className="w-5 h-5" />
+        </a>
       </div>
-
-      {/* Main Counters Section */}
-      <div className="flex flex-col lg:flex-row justify-between gap-6">
-        {/* Coin Counter Section */}
-        <div className="bg-zinc-800 rounded-xl p-6 shadow-lg w-full lg:w-[48%]">
-          <CoinCounter
-            heads={heads}
-            setHeads={setHeads}
-            tails={tails}
-            setTails={setTails}
-          />
-        </div>
-
-        {/* Win/Loss Counter Section */}
-        <div className="bg-zinc-800 rounded-xl p-6 shadow-lg w-full lg:w-[48%]">
-          <WinLossCounter
-            wins={wins}
-            setWins={setWins}
-            losses={losses}
-            setLosses={setLosses}
-          />
-        </div>
-      </div>
-
-      {/* Toast Container */}
-      <ToastContainer 
-          position="top-right" 
-          autoClose={5000} 
-          hideProgressBar={true} 
-          newestOnTop={true} 
-          rtl={false} 
-          pauseOnFocusLoss={true} 
-          draggable={true} 
-          pauseOnHover={true}
-/>
-
-    </div>
+    </main>
   );
 }

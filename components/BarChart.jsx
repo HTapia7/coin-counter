@@ -1,12 +1,12 @@
 "use client";
 
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { useEffect, useState } from "react";
 
-const COLORS = ["#60a5fa", "#f87171"]; // Wins = Blue, Losses = Red
-
-export default function WinLossPieChart() {
+export default function CoinWinLossBarChart() {
   const [sessions, setSessions] = useState([]);
+  const [totalHeads, setTotalHeads] = useState(0);
+  const [totalTails, setTotalTails] = useState(0);
   const [totalWins, setTotalWins] = useState(0);
   const [totalLosses, setTotalLosses] = useState(0);
 
@@ -19,62 +19,54 @@ export default function WinLossPieChart() {
     fetchSessions();
   }, []);
 
+  // Calculate totals for Heads/Tails and Wins/Losses
   useEffect(() => {
     const totals = sessions.reduce(
       (acc, session) => {
+        acc.heads += session.heads || 0;
+        acc.tails += session.tails || 0;
         acc.wins += session.wins || 0;
         acc.losses += session.losses || 0;
         return acc;
       },
-      { wins: 0, losses: 0 }
+      { heads: 0, tails: 0, wins: 0, losses: 0 }
     );
+    setTotalHeads(totals.heads);
+    setTotalTails(totals.tails);
     setTotalWins(totals.wins);
     setTotalLosses(totals.losses);
   }, [sessions]);
 
   const data = [
-    { name: "Wins", value: totalWins },
-    { name: "Losses", value: totalLosses },
+    { name: "Heads", count: totalHeads },
+    { name: "Tails", count: totalTails },
+    { name: "Wins", count: totalWins },
+    { name: "Losses", count: totalLosses },
   ];
 
   return (
     <div className="h-[350px] w-full flex items-center justify-center">
       <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            innerRadius={50}
-            outerRadius={110}
-            paddingAngle={5}
-            dataKey="value"
-            labelLine={false}
-            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" />
+          <YAxis />
           <Tooltip
             contentStyle={{
-              backgroundColor: "#1f2937", // dark gray bg
+              backgroundColor: "#1f2937",
               border: "none",
               borderRadius: "8px",
-              color: "#FFFFFF", // text color white ✅
+              color: "#FFFFFF",
             }}
             itemStyle={{
-              color: "#FFFFFF", // fix text color inside tooltip ✅
+              color: "#FFFFFF",
               fontSize: "14px",
             }}
             formatter={(value, name) => [`${value}`, name]}
           />
-          <Legend
-            verticalAlign="bottom"
-            iconType="circle"
-            wrapperStyle={{ paddingTop: "20px" }}
-          />
-        </PieChart>
+          <Legend />
+          <Bar dataKey="count" fill="#60a5fa" barSize={50} />
+        </BarChart>
       </ResponsiveContainer>
     </div>
   );
