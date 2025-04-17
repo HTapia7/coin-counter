@@ -29,6 +29,12 @@ export default function Counter() {
         body: JSON.stringify({ heads, tails, wins, losses }),
       });
 
+      if (!res.ok) {
+        const errorData = await res.json();
+        toast.error(`Error: ${errorData.error || "Failed to save session."}`);
+        return;
+      }
+
       const data = await res.json();
 
       if (data.success) {
@@ -41,7 +47,7 @@ export default function Counter() {
         toast.error("Failed to save session.");
       }
     } catch (error) {
-      toast.error("Error saving session.", error!);
+      toast.error("Error saving session: " + error.message);
     }
   };
 
