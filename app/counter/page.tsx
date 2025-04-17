@@ -40,8 +40,8 @@ export default function Counter() {
       } else {
         toast.error("Failed to save session.");
       }
-    } catch (err) {
-      toast.error("Error saving session.");
+    } catch (error) {
+      toast.error("Error saving session.", error!);
     }
   };
 
